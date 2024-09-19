@@ -14,7 +14,7 @@ export default async function Home() {
     // <UserButton afterSignOutUrl="/" />
     <>
     <h1 className="head-text text-left">home</h1>
-    <section className="mt-9 flex flex-col gap-10">
+    <section className="mt-3 flex flex-col gap-4">
       {result.posts.length === 0 ?(
         <p className="no-result">No hay posteos para mostrar</p>
       ): (

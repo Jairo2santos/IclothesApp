@@ -3,7 +3,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { sidebarLinks } from "@/constants";
-import { SignedIn, SignOutButton } from "@clerk/nextjs";
+import { SignedIn, SignOutButton, useAuth } from "@clerk/nextjs";
+
 
 function LeftSidebar() {
   const router = useRouter();
@@ -13,10 +14,13 @@ function LeftSidebar() {
       <div className="flex w-full flex-1 flex-col gap-6 px-6">
         {sidebarLinks.map((link) => {
           const isActive =
-            pathname.includes(link.route && link.route.length > 1) ||
-            pathname === link.route;
+          (pathname.includes(link.route) && link.route.length > 1) ||
+          pathname === link.route;
+           const {userId} = useAuth()
+          if(link.route ==='/perfil') link.route = `${link.route}/${userId}`
+
           return (
-            <div>
+          
               <Link
                 href={link.route}
                 key={link.label}
@@ -30,7 +34,7 @@ function LeftSidebar() {
                 />
                 <p className="text-light-1 max-lg:hidden">{link.label}</p>
               </Link>
-            </div>
+           
           );
         })}
       </div>
