@@ -2,7 +2,6 @@
 
 import { FilterQuery, SortOrder } from "mongoose";
 import { revalidatePath } from "next/cache";
-import { UserInfo } from "@/lib/types"; // Ajusta la ruta según tu elección
 
 import Community from "../models/community.model";
 import Thread from "../models/thread.model";
@@ -10,16 +9,14 @@ import User from "../models/user.model";
 
 import { connectToDB } from "../mongoose";
 
-export async function fetchUser(userId: string): Promise<UserInfo | null> {
+export async function fetchUser(userId: string) {
   try {
-    await connectToDB();
+    connectToDB();
 
-    const user = await User.findOne({ id: userId }).populate({
+    return await User.findOne({ id: userId }).populate({
       path: "communities",
       model: Community,
     });
-
-    return user ? user.toObject() as UserInfo : null; // Conversión a objeto plano
   } catch (error: any) {
     throw new Error(`Failed to fetch user: ${error.message}`);
   }
@@ -57,7 +54,7 @@ export async function updateUser({
       { upsert: true }
     );
 
-    if (path === "/profile/edit") {
+    if (path === "/perfil/edit") {
       revalidatePath(path);
     }
   } catch (error: any) {
