@@ -1,36 +1,34 @@
-import { currentUser} from "@clerk/nextjs"
+import Image from "next/image";
+import { currentUser } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
-import { fetchUser } from "@/lib/actions/user.actions";
-import PostThread from "@/components/forms/PostThread";
+
+import { profileTabs } from "@/constants";
+
+import ThreadsTab from "@/components/shared/ThreadsTab";
 import ProfileHeader from "@/components/shared/ProfileHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Image from "next/image";
-import { profileTabs } from "@/constants";
-import ThreadsTab from "@/components/shared/ThreadsTab";
 
+import { fetchUser } from "@/lib/actions/user.actions";
 
-const Page = async({params}: { params: {id: string}}) =>{
-    const user = await currentUser();
+async function Page({ params }: { params: { id: string } }) {
+  const user = await currentUser();
+  if (!user) return null;
 
-    if(!user){return null;} 
-    const userInfo = await fetchUser(params.id)
-  
-    //redirect sino esta registrado 
-    if(!userInfo?.onboarded){redirect('/onboarding') } 
-  
- return(
+  const userInfo = await fetchUser(params.id);
+  if (!userInfo?.onboarded) redirect("/onboarding");
+
+  return (
     <section>
-        <ProfileHeader
+      <ProfileHeader
+        accountId={userInfo.id}
+        authUserId={user.id}
+        name={userInfo.name}
+        username={userInfo.username}
+        imgUrl={userInfo.image}
+        bio={userInfo.bio}
+      />
 
-         accountId={userInfo.id}
-         authUserId={user.id}
-         name={userInfo.name}
-         username={userInfo.username}
-         imgUrl={userInfo.image}
-         bio={userInfo.bio}
-        />
-        
-      <div className='mt-2'>
+      <div className='mt-9'>
         <Tabs defaultValue='threads' className='w-full'>
           <TabsList className='tab'>
             {profileTabs.map((tab) => (
@@ -46,7 +44,7 @@ const Page = async({params}: { params: {id: string}}) =>{
 
                 {tab.label === "Threads" && (
                   <p className='ml-1 rounded-sm bg-light-4 px-2 py-1 !text-tiny-medium text-light-2'>
-                    {userInfo?.threads?.length}
+                    {userInfo.threads.length}
                   </p>
                 )}
               </TabsTrigger>
@@ -58,6 +56,7 @@ const Page = async({params}: { params: {id: string}}) =>{
               value={tab.value}
               className='w-full text-light-1'
             >
+              {/* @ts-ignore */}
               <ThreadsTab
                 currentUserId={user.id}
                 accountId={userInfo.id}
@@ -68,7 +67,6 @@ const Page = async({params}: { params: {id: string}}) =>{
         </Tabs>
       </div>
     </section>
- )
+  );
 }
-
-export default Page
+export default Page;
