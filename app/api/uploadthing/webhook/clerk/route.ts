@@ -96,10 +96,10 @@ export const POST = async (request: Request) => {
   if (eventType === "organizationInvitation.created") {
     try {
       // Resource: https://clerk.com/docs/reference/backend-api/tag/Organization-Invitations#operation/CreateOrganizationInvitation
-      console.log("Invitacion creada", evnt?.data);
+      console.log("Invitation created", evnt?.data);
 
       return NextResponse.json(
-        { message: "Invitacion creada" },
+        { message: "Invitation created" },
         { status: 201 }
       );
     } catch (err) {
@@ -118,13 +118,13 @@ export const POST = async (request: Request) => {
       // Resource: https://clerk.com/docs/reference/backend-api/tag/Organization-Memberships#operation/CreateOrganizationMembership
       // Show what evnt?.data sends from above resource
       const { organization, public_user_data } = evnt?.data;
-      console.log("creado", evnt?.data);
+      console.log("created", evnt?.data);
 
       // @ts-ignore
       await addMemberToCommunity(organization.id, public_user_data.user_id);
 
       return NextResponse.json(
-        { message: "Invitacion aceptada" },
+        { message: "Invitation accepted" },
         { status: 201 }
       );
     } catch (err) {
