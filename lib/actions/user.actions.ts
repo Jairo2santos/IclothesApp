@@ -1,62 +1,65 @@
 "use server";
-import { connectToDB } from "../mongoose";
-import User from "../models/user.model";
+
+import { FilterQuery, SortOrder } from "mongoose";
 import { revalidatePath } from "next/cache";
+
 import Community from "../models/community.model";
 import Thread from "../models/thread.model";
-import { FilterQuery, SortOrder } from "mongoose";
-interface Params{
-    userId:string,
-    username:string,
-    name:string,
-    bio:string,
-    image:string,
-    path:string,
-}
-export async function updateUser({
-    userId,
-    username,
-    name,
-    bio,
-    image,
-    path
+import User from "../models/user.model";
 
-}: Params
-): Promise<void> {
-  connectToDB();
+import { connectToDB } from "../mongoose";
+
+export async function fetchUser(userId: string) {
   try {
-    
-  await User.findOneAndUpdate(
-    { id: userId },
-    { username: username.toLowerCase(),
+    connectToDB();
+
+    return await User.findOne({ id: userId }).populate({
+      path: "communities",
+      model: Community,
+    });
+  } catch (error: any) {
+    throw new Error(`Failed to fetch user: ${error.message}`);
+  }
+}
+
+interface Params {
+  userId: string;
+  username: string;
+  name: string;
+  bio: string;
+  image: string;
+  path: string;
+}
+
+export async function updateUser({
+  userId,
+  bio,
+  name,
+  path,
+  username,
+  image,
+}: Params): Promise<void> {
+  try {
+    connectToDB();
+
+    await User.findOneAndUpdate(
+      { id: userId },
+      {
+        username: username.toLowerCase(),
         name,
         bio,
         image,
         onboarded: true,
+      },
+      { upsert: true }
+    );
 
-     },
-     {
-        upsert: true,
-     }
-  );
-  if (path === '/profile/edit') {
-    revalidatePath(path);
-  }
-  } catch (error: any) {
-    throw new Error (`no se ha podido crear el usuario ${error.message}`)
-  }
-}
-export async function fetchUser(userId: string){
-    try {
-        connectToDB()
-        return await User.findOne({id: userId})
-        // .populate({
-        //     path: 'communities',
-        //     model: 'community'
-        // })
-    } catch (error: any) {
-        throw new Error(`falló fetch user: ${error.message}`)
+    if (path === "/profile/edit") {
+      revalidatePath(path);
     }
+  } catch (error: any) {
+    throw new Error(`Failed to create/update user: ${error.message}`);
+  }
 }
 
 export async function fetchUserPosts(userId: string) {
@@ -90,6 +93,8 @@ export async function fetchUserPosts(userId: string) {
     throw error;
   }
 }
+
+// Almost similar to Thead (search + pagination) and Community (search + pagination)
 export async function fetchUsers({
   userId,
   searchString = "",
@@ -106,8 +111,10 @@ export async function fetchUsers({
   try {
     connectToDB();
 
+    // Calculate the number of users to skip based on the page number and page size.
     const skipAmount = (pageNumber - 1) * pageSize;
 
+    // Create a case-insensitive regular expression for the provided search string.
     const regex = new RegExp(searchString, "i");
 
     // Create an initial query object to filter users.
@@ -145,6 +152,7 @@ export async function fetchUsers({
     throw error;
   }
 }
+
 export async function getActivity(userId: string) {
   try {
     connectToDB();
