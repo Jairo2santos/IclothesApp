@@ -2,7 +2,7 @@
 import { connectToDB } from "../mongoose";
 import User from "../models/user.model";
 import { revalidatePath } from "next/cache";
-//import Community from "../models/community.model";
+import Community from "../models/community.model";
 import Thread from "../models/thread.model";
 import { FilterQuery, SortOrder } from "mongoose";
 interface Params{
@@ -58,6 +58,7 @@ export async function fetchUser(userId: string){
         throw new Error(`falló fetch user: ${error.message}`)
     }
 }
+
 export async function fetchUserPosts(userId: string) {
   try {
     connectToDB();
@@ -66,19 +67,19 @@ export async function fetchUserPosts(userId: string) {
     const threads = await User.findOne({ id: userId }).populate({
       path: "threads",
       model: Thread,
-       populate: [
-      //   {
-      //     path: "community",
-      //     model: Community,
-      //     select: "name id image _id", // Select the "name" and "_id" fields from the "Community" model
-      //   },
+      populate: [
+        {
+          path: "community",
+          model: Community,
+          select: "name id image _id", // Select the "name" and "_id" fields from the "Community" model
+        },
         {
           path: "children",
           model: Thread,
           populate: {
             path: "author",
             model: User,
-            select: "name image id", 
+            select: "name image id", // Select the "name" and "_id" fields from the "User" model
           },
         },
       ],
