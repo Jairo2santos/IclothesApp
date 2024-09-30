@@ -37,6 +37,7 @@ function ThreadCard({
   community,
   createdAt,
   comments,
+  
   isComment,
 }: Props) {
   return (
