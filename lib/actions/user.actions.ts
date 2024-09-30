@@ -54,7 +54,7 @@ export async function updateUser({
       { upsert: true }
     );
 
-    if (path === "/perfil/edit") {
+    if (path === "/profile/edit") {
       revalidatePath(path);
     }
   } catch (error: any) {

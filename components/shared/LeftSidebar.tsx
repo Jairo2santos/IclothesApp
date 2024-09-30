@@ -17,7 +17,7 @@ function LeftSidebar() {
           (pathname.includes(link.route) && link.route.length > 1) ||
           pathname === link.route;
            const {userId} = useAuth()
-          if(link.route ==='/perfil') link.route = `${link.route}/${userId}`
+          if(link.route ==='/profile') link.route = `${link.route}/${userId}`
 
           return (
           
